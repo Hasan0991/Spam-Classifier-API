@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.http import HttpResponse
+from rest_framework.response import Response
 from .serializer import PredictSerializer
 from .ml_model import predict 
 from rest_framework import status
@@ -11,6 +11,7 @@ class PredictView(APIView):
         serializer = PredictSerializer(data=request.data)
         if serializer.is_valid():
             text=serializer.validated_data["text"]
-            prediction = predict(text)
-            return HttpResponse(f"Prediction is:{prediction}")
-        return HttpResponse("GET THE FUCK OUT")
+            accuracy_number,prediction = predict(text)
+            return Response({'prediction':prediction,
+                             'probability':accuracy_number}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

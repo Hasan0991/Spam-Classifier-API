@@ -11,4 +11,5 @@ vectorizer = joblib.load(VECTORIZER_PATH)
 def predict(text:str) -> str:
     text_vector=vectorizer.transform([text])
     prediction = model.predict(text_vector)[0]
-    return prediction
+    accuracy_number = model.predict_proba(text_vector).max()
+    return prediction,accuracy_number

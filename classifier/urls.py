@@ -3,5 +3,5 @@ from .views import PredictView
 from . import views
 
 urlpatterns=[
-    path("predict/",PredictView.as_view())
+    path("predict/",PredictView.as_view(),name="predict")
 ]           
