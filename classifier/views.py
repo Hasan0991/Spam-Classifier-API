@@ -5,12 +5,12 @@ from .ml_model import predict
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.decorators import api_view,authentication_classes,permission_classes
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated,IsAdminUser
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
 
 class PredictView(APIView):
-    permission_classes = [IsAuthenticated]  
+    permission_classes = [IsAdminUser]  
     def post(self,request):
         serializer = PredictSerializer(data=request.data)
         if serializer.is_valid():
