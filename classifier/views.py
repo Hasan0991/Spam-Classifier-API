@@ -4,9 +4,11 @@ from .serializer import PredictSerializer
 from .ml_model import predict 
 from rest_framework import status
 from rest_framework.views import APIView
-
+from rest_framework.decorators import api_view,authentication_classes,permission_classes
+from rest_framework.permissions import IsAuthenticated
 
 class PredictView(APIView):
+    permission_classes = [IsAuthenticated]  
     def post(self,request):
         serializer = PredictSerializer(data=request.data)
         if serializer.is_valid():

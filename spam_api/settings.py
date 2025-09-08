@@ -59,6 +59,7 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'spam_api.urls'
 
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -82,8 +83,12 @@ WSGI_APPLICATION = 'spam_api.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'spamdb',
+        'USER': 'postgres',      
+        'PASSWORD': 'hasan123',   
+        'HOST': 'localhost',      
+        'PORT': '5432',    
     }
 }
 
