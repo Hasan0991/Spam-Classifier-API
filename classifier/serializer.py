@@ -1,6 +1,9 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
+
 
 class PredictSerializer(serializers.Serializer):
     text=serializers.CharField()
@@ -14,7 +17,13 @@ class RegisterSerializer(serializers.ModelSerializer):
     def validate_password(self, value):
         validate_password(value)
         return value
-    
+    def validate_email(self,email):
+        try:
+            validate_email(email)
+        except ValidationError:
+            raise serializers.ValidationError("Enter valid email")
+        return email
+
     def create(self,validated_data):
         username=validated_data["username"] 
         email = validated_data["email"]

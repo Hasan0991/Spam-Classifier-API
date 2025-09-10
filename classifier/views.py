@@ -31,7 +31,7 @@ class RegisterView(APIView):
         serializer = RegisterSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return render(request,'login.html', {'success': 'User registered successfully'})
+            return  redirect('login_page')  
         return render(request, 'register.html', {'errors': serializer.errors})
     
 class LoginView(APIView):
