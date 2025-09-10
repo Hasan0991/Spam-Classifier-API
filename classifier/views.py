@@ -8,7 +8,8 @@ from rest_framework.decorators import api_view,authentication_classes,permission
 from rest_framework.permissions import IsAuthenticated,IsAdminUser
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
-
+def myapp(request):
+    return render(request,"register.html") 
 class PredictView(APIView):
     permission_classes = [IsAdminUser]  
     def post(self,request):
