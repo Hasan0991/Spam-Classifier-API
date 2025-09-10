@@ -8,10 +8,15 @@ from rest_framework.decorators import api_view,authentication_classes,permission
 from rest_framework.permissions import IsAuthenticated,IsAdminUser
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.shortcuts import redirect
+
+
 def myapp(request):
     return render(request,"register.html") 
+
+def login_page(request):
+    return render(request,'login.html')
 class PredictView(APIView):
-    permission_classes = [IsAdminUser]  
     def post(self,request):
         serializer = PredictSerializer(data=request.data)
         if serializer.is_valid():
@@ -25,9 +30,9 @@ class RegisterView(APIView):
     def post(self,request):
         serializer = RegisterSerializer(data=request.data)
         if serializer.is_valid():
-            user =serializer.save()
-            return Response({"message":"User registered successfully"},status=status.HTTP_200_OK)
-        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+            serializer.save()
+            return render(request,'login.html', {'success': 'User registered successfully'})
+        return render(request, 'register.html', {'errors': serializer.errors})
     
 class LoginView(APIView):
     def post(self,request):
