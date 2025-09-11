@@ -3,20 +3,21 @@ from rest_framework.response import Response
 from .serializer import PredictSerializer,RegisterSerializer
 from .ml_model import predict 
 from rest_framework import status
-from rest_framework.views import APIView
+from rest_framework.views import APIView,View
 from rest_framework.decorators import api_view,authentication_classes,permission_classes
 from rest_framework.permissions import IsAuthenticated,IsAdminUser
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate,login,logout
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.shortcuts import redirect
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
 
 
 def myapp(request):
     return render(request,"register.html") 
 
-def login_page(request):
-    return render(request,'login.html')
 class PredictView(APIView):
+    permission_classes=[IsAuthenticated]
     def post(self,request):
         serializer = PredictSerializer(data=request.data)
         if serializer.is_valid():
@@ -35,14 +36,24 @@ class RegisterView(APIView):
         return render(request, 'register.html', {'errors': serializer.errors})
     
 class LoginView(APIView):
+    def get(self,request):
+        return render(request,'login.html')
     def post(self,request):
         username = request.data.get("username")
         password = request.data.get("password")
-        user = authenticate(username=username, password=password)
+        user = authenticate(request,username=username, password=password)
         if user is not None:
-            refresh = RefreshToken.for_user(user)
-            return Response({
-                "refresh": str(refresh),
-                "access": str(refresh.access_token),
-            }, status=status.HTTP_200_OK)
-        return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+            login(request,user)
+            return redirect('main_page')
+        return render(request,'login.html', {"error": "Invalid username or password"})
+
+class LogoutView(View):
+    def get(self,request):
+        logout(request)
+        return redirect('home')
+    
+    
+@method_decorator(login_required(login_url='/login/'), name="dispatch")
+class DashboardView(View):
+    def get(self, request):
+        return render(request, "main.html", {"user": request.user})

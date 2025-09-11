@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import PredictView,RegisterView,LoginView,login_page
+from .views import PredictView,RegisterView,LoginView   
 from . import views
 
 urlpatterns=[
