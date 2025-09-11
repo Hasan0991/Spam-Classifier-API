@@ -16,7 +16,7 @@ from django.utils.decorators import method_decorator
 def myapp(request):
     return render(request,"register.html") 
 
-@method_decorator(login_required,name="dispatch")
+@method_decorator(login_required(login_url='/login/'),name="dispatch")
 class PredictPageView(View):
     def get(self,request):
         return render(request,'predict.html')
