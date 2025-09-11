@@ -16,16 +16,35 @@ from django.utils.decorators import method_decorator
 def myapp(request):
     return render(request,"register.html") 
 
-class PredictView(APIView):
-    permission_classes=[IsAuthenticated]
+@method_decorator(login_required,name="dispatch")
+class PredictPageView(View):
+    def get(self,request):
+        return render(request,'predict.html')
+    
     def post(self,request):
-        serializer = PredictSerializer(data=request.data)
+        serializer = PredictSerializer(data={'text':request.POST.get("text")})
         if serializer.is_valid():
             text=serializer.validated_data["text"]
             accuracy_number,prediction = predict(text)
-            return Response({'prediction':prediction,
-                             'probability':accuracy_number}, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return render(request, 'predict.html', {
+                'prediction': prediction,
+                'probability': accuracy_number,
+                'text': text
+            })
+        return render(request, 'predict.html', {'errors': serializer.errors})
+
+class PredictApiView(APIView):
+    def post(self,request):
+        serializer = PredictSerializer(data={'text':request.data.get("text")})
+        if serializer.is_valid():
+            text=serializer.validated_data["text"]
+            accuracy_number,prediction = predict(text)
+            return render(request, 'predict.html', {
+                'prediction': prediction,
+                'probability': accuracy_number,
+                'text': text
+            })
+        return render(request, 'predict.html', {'errors': serializer.errors})
 
 class RegisterView(APIView):
     def post(self,request):
@@ -35,17 +54,29 @@ class RegisterView(APIView):
             return  redirect('login_page')  
         return render(request, 'register.html', {'errors': serializer.errors})
     
-class LoginView(APIView):
+class LoginPageView(View):
     def get(self,request):
         return render(request,'login.html')
     def post(self,request):
-        username = request.data.get("username")
-        password = request.data.get("password")
+        username = request.POST.get("username")
+        password = request.POST.get("password")
         user = authenticate(request,username=username, password=password)
         if user is not None:
             login(request,user)
-            return redirect('main_page')
+            return redirect('prediction_page')
         return render(request,'login.html', {"error": "Invalid username or password"})
+
+class LoginApiView(APIView):
+    
+    def post(self,request):
+        username = request.data.get("username")  
+        password = request.data.get("password")
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            return redirect("prediction_page")
+        return render(request, "login.html", {"error": "Invalid username or password"})
+    
 
 class LogoutView(View):
     def get(self,request):
