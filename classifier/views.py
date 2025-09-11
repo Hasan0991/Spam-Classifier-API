@@ -10,6 +10,7 @@ from django.contrib.auth import authenticate,login,logout
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf  import csrf_exempt
 from django.utils.decorators import method_decorator
 
 
@@ -44,8 +45,9 @@ class PredictApiView(APIView):
                 'probability': accuracy_number,
                 'text': text
             })
-        return render(request, 'predict.html', {'errors': serializer.errors})
-
+        return  Response({"error":serializer.errors},status=401)
+    
+@method_decorator(csrf_exempt, name='dispatch')
 class RegisterView(APIView):
     def post(self,request):
         serializer = RegisterSerializer(data=request.data)
@@ -64,7 +66,7 @@ class LoginPageView(View):
         if user is not None:
             login(request,user)
             return redirect('prediction_page')
-        return render(request,'login.html', {"error": "Invalid username or password"})
+        return render(request,'login.html', {'errors': "Invalid username or password"})
 
 class LoginApiView(APIView):
     
@@ -73,9 +75,9 @@ class LoginApiView(APIView):
         password = request.data.get("password")
         user = authenticate(request, username=username, password=password)
         if user is not None:
-            login(request, user)
+            login(request, user)    
             return redirect("prediction_page")
-        return render(request, "login.html", {"error": "Invalid username or password"})
+        return Response({"errors":"invalid credentials"})
     
 
 class LogoutView(View):
